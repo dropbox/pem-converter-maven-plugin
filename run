@@ -1,0 +1,30 @@
+#! /bin/bash
+# ------------------------------------------------------------------
+# A script to launch the PEM Certs to JKS converter program.
+# ------------------------------------------------------------------
+set -e
+main_class="com.dropbox.maven.pem_converter.CommandLineTool"
+
+die() {
+    for line in "$@"; do
+        echo "$line" > /dev/stderr
+    done
+    exit 1
+}
+
+# Locate the script file.  Cross symlinks if necessary.
+loc="$0"
+while [ -h "$loc" ]; do
+    ls=`ls -ld "$loc"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        loc="$link"  # Absolute link
+    else
+        loc="`dirname "$loc"`/$link"  # Relative link
+    fi
+done
+
+base_dir="$(dirname "$loc")"
+classpath="$base_dir/target/classes"
+
+exec java -ea -cp "$classpath" "$main_class" "$@"
